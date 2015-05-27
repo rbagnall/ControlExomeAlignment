@@ -54,7 +54,7 @@ print "\t\t-------------------------------------------------------------\n\n";
 print "\n";
 
 # create temporary folder
-#~#mkdir ("$input/tempBAMs") or die "Unable to create tempBAMs directory: <$!>\n";
+mkdir ("$input/tempBAMs") or die "Unable to create tempBAMs directory: <$!>\n";
 
 # paths
 my $path2rawdata = "$input/Rawdata";
@@ -67,31 +67,29 @@ my $path2ref = '/home/groups/cardio/References/Bwa_b37/hs37d5.fa';
 #   Start BWA mem   #
 #####################
 
-#~#my @fq = glob("$path2rawdata/*.fastq.gz"); # make array of fastq.gz
+my @fq = glob("$path2rawdata/*.fastq.gz"); # make array of fastq.gz
 
 # check that there are the same number of forward and reverse files, and they have correct extensions
-#~#my @f_fq = grep(/1.fastq.gz$/i, @fq);
-#~#my @r_fq = grep(/2.fastq.gz$/i, @fq);
-#~#if (scalar(@f_fq) != scalar(@r_fq)) {
-#~#    rmdir "$path2bam";
-#~#    die "*** error: There must be a 1.fastq.gz and 2.fastq.gz file for each sample\n\n";
-#~#}
+my @f_fq = grep(/1.fastq.gz$/i, @fq);
+my @r_fq = grep(/2.fastq.gz$/i, @fq);
+if (scalar(@f_fq) != scalar(@r_fq)) {
+    rmdir "$path2bam";
+    die "*** error: There must be a 1.fastq.gz and 2.fastq.gz file for each sample\n\n";
+}
 
-#~#my $sixfork_manager = Parallel::ForkManager->new(3);
+my $sixfork_manager = Parallel::ForkManager->new(3);
 
-#~#for (my $i = 0; $i < @fq; $i = $i ++) {
-#~#    my @fq_pair = splice(@fq, $i, 2);
-#~#    $sixfork_manager->start and next;
-#~#    bwa_mem(join(" ", @fq_pair));
-#~#    $sixfork_manager->finish;
-#~#}
+for (my $i = 0; $i < @fq; $i = $i ++) {
+    my @fq_pair = splice(@fq, $i, 2);
+    $sixfork_manager->start and next;
+    bwa_mem(join(" ", @fq_pair));
+    $sixfork_manager->finish;
+}
 
-#~#$sixfork_manager-> wait_all_children;
+$sixfork_manager-> wait_all_children;
 
-#~#print "\n\n*** BWA mapping complete ***\n";
-#~#clock();
-
-
+print "\n\n*** BWA mapping complete ***\n";
+clock();
 
 #################################
 # Depth of coverage calculation #
